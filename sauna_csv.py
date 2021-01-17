@@ -22,6 +22,7 @@ def get_sauna_spec(soup):
     for s in spec_table:
         v = s.find("img").get("alt")
 
+        v_hot = 0
         if v == "無し":
             v_hot = 0
         elif v == "有り":
@@ -76,6 +77,7 @@ def get_sauna_detail(soup):
     for s in spec_table:
         v = s.find("span", class_="p-saunaSpecList_value").get_text()
 
+        v_hot = 0
         if v == "○":
             v_hot = 1
         elif v == "-":
@@ -107,6 +109,8 @@ def get_sauna_data():
         for c in contents:
             name = c.find("h3").get_text().strip()
             url = c.find("a").get("href")
+            address = c.find("address").get_text().strip()
+
             res = requests.get(url)
             soup = BeautifulSoup(res.text, "html.parser")
 
@@ -117,6 +121,7 @@ def get_sauna_data():
                 .get_text()
                 .strip()
             )
+
             mizuburo_temp = (
                 soup.find("div", class_="p-saunaSpecItem p-saunaSpecItem--mizuburo")
                 .find("p", class_="p-saunaSpecItem_number")
@@ -133,6 +138,7 @@ def get_sauna_data():
 
             sauna = {
                 "name": name,
+                "address": address,
                 "sauna_temp": sauna_temp,
                 "mizuburo_temp": mizuburo_temp,
                 "ikitai": ikitai,
@@ -150,6 +156,7 @@ def get_sauna_data():
         time.sleep(1)  # Avoid the load
 
     df = pd.DataFrame(saunas)
+    df.to_csv("dist/sauna.csv")
     print(df)
 
 

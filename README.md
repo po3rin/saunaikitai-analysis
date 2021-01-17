@@ -1,6 +1,13 @@
 # sauna-ikitai-analysis
 
-get sauna data form sauna-ikitai
+## get sauna data form sauna-ikitai
+
+```sh
+$ poetry run python sauna_csv.py
+```
+## analysis
+
+impliments ...
 
 ## TODO
 - [ ] get multi sauna temp
@@ -8,4 +15,3 @@ get sauna data form sauna-ikitai
 
 ## sauna-ikitai
 https://sauna-ikitai.com/
-
