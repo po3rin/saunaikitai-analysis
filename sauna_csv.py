@@ -2,9 +2,10 @@ import requests
 import math
 import time
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 import pandas as pd
 
-BASE_URL = 'https://sauna-ikitai.com/search?'
+BASE_URL = 'https://sauna-ikitai.com/search'
 
 
 def get_sauna_spec(soup):
@@ -96,13 +97,12 @@ def get_sauna_data():
     total = soup.find('p', class_='p-result_number').find('span').get_text()
     pages = math.ceil(int(total) / 20)
 
-    saunas = []
-
     # for debug
-    pages = 0
+    pages = 1
 
-    for p in range(pages + 1):
-        res = requests.get(BASE_URL + f'?page={p}')
+    for p in tqdm(range(pages + 1)):
+        saunas = []
+        res = requests.get(BASE_URL + f'?page={p+1}')
         soup = BeautifulSoup(res.text, 'html.parser')
         contents = soup.find_all('div', class_='p-saunaItem p-saunaItem--list')
 
@@ -123,7 +123,8 @@ def get_sauna_data():
             )
 
             mizuburo_temp = (
-                soup.find('div', class_='p-saunaSpecItem p-saunaSpecItem--mizuburo')
+                soup.find(
+                    'div', class_='p-saunaSpecItem p-saunaSpecItem--mizuburo')
                 .find('p', class_='p-saunaSpecItem_number')
                 .find('strong')
                 .get_text()
@@ -147,17 +148,19 @@ def get_sauna_data():
             specs = get_sauna_spec(soup)
             sauna.update(specs)
 
-            specs = get_sauna_detail(soup)
-            sauna.update(specs)
+            details = get_sauna_detail(soup)
+            sauna.update(details)
 
             saunas.append(sauna)
             time.sleep(1)  # Avoid the load
 
-        time.sleep(1)  # Avoid the load
+        df = pd.DataFrame(saunas)
+        if p == 0:
+            df.to_csv('src/sauna.csv', index=False)
+        else:
+            df.to_csv('src/sauna.csv', mode='a', index=False, header=False)
 
-    df = pd.DataFrame(saunas)
-    df.to_csv('dist/sauna.csv')
-    print(df)
+        time.sleep(1)  # Avoid the load
 
 
 if __name__ == '__main__':
