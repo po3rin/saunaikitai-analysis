@@ -98,7 +98,7 @@ def get_sauna_data():
     pages = math.ceil(int(total) / 20)
 
     # for debug
-    pages = 1
+    # pages = 1
 
     for p in tqdm(range(pages + 1)):
         saunas = []
