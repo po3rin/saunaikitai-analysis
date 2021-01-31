@@ -100,7 +100,9 @@ def get_sauna_data():
     # for debug
     # pages = 1
 
-    for p in tqdm(range(pages + 1)):
+    for p in range(pages + 1):
+        # for p in range(3, 4):
+        print(f"get data from page {p}")
         saunas = []
         res = requests.get(BASE_URL + f'?page={p+1}')
         soup = BeautifulSoup(res.text, 'html.parser')
@@ -108,6 +110,7 @@ def get_sauna_data():
 
         for c in contents:
             name = c.find('h3').get_text().strip()
+            print(f"get dsauna detail from {name}")
             url = c.find('a').get('href')
             address = c.find('address').get_text().strip()
 
@@ -145,11 +148,16 @@ def get_sauna_data():
                 'ikitai': ikitai,
             }
 
-            specs = get_sauna_spec(soup)
-            sauna.update(specs)
+            try:
+                specs = get_sauna_spec(soup)
+                sauna.update(specs)
 
-            details = get_sauna_detail(soup)
-            sauna.update(details)
+                details = get_sauna_detail(soup)
+                sauna.update(details)
+            except AttributeError:
+                # TODO: impliments to get women sauna.
+                # maybe this sauna is for women.
+                continue
 
             saunas.append(sauna)
             time.sleep(1)  # Avoid the load
